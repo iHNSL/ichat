@@ -26,22 +26,17 @@ export type Message =
 	};
 
 export const names = [
-	// Roman Emperors
+	// Div
 	"Augustus",
-	"Trajan",
 	"Marcus Aurelius",
-	"Hadrian",
 	"Constantine",
-	"Tiberius",
-	"Nero",
-	"Caligula",
-	"Vespasian",
 	"Titus",
-	"Domitian",
-	"Commodus",
-	"Septimius Severus",
-	"Caracalla",
-	"Diocletian",
+	"Mini Pekka",
+	"Genji",
+	"Winton",
+	"Mercy",
+
+
 
 	// Greek Gods & Mythology
 	"Zeus",
@@ -60,22 +55,35 @@ export const names = [
 	"Hercules",
 	"Achilles",
 	"Odysseus",
-	// Generals (1900-2000)
-	"Dwight D. Eisenhower",
-	"George S. Patton",
-	"Douglas MacArthur",
-	"Bernard Montgomery",
-	"Erwin Rommel",
-	"Georgy Zhukov",
-	"John J. Pershing",
-	"Norman Schwarzkopf",
-	"Vo Nguyen Giap",
-	"Chester Nimitz",
-	"George Marshall",
-	"Omar Bradley",
-	"Heinz Guderian",
-	"Erich von Manstein",
-	"Isoroku Yamamoto",
-	"ADOLF HITLER",
-	"Colin Powell"
+
+	// Norse Mythology
+	"Odin",
+	"Thor",
+	"Loki",
+	"Freya",
+	"Heimdall",
+	"Tyr",
+	"Baldur",
+	"Frigg",
+
+	// Roman Mythology
+	"Jupiter",
+	"Mars",
+	"Minerva",
+	"Venus",
+	"Mercury",
+	"Neptune",
+	"Pluto",
+	"Gaia",
+	"Vulcan",
+
+	// Egyptian Mythology
+	"Ra",
+	"Anubis",
+	"Osiris",
+	"Isis",
+	"Horus",
+	"Set",
+	"Thoth",
+	"Bastet",
 ];
