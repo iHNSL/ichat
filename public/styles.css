@@ -5,6 +5,12 @@ html {
 	padding: 0;
 	display: flex;
 	flex-direction: column;
+	/* Dark gradient background */
+	background: linear-gradient(135deg, #2b1055 0%, #000000 100%);
+	background-attachment: fixed;
+	color: #ffffff;
+	/* White text for dark mode */
+	font-family: 'Inter', "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
 .chat {
@@ -21,13 +27,32 @@ html {
 	/* padding: 10px; */
 }
 
+/* Glassmorphism for the main container */
+.container {
+	background: rgba(255, 255, 255, 0.05);
+	backdrop-filter: blur(10px);
+	-webkit-backdrop-filter: blur(10px);
+	border-radius: 16px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+	padding: 2rem;
+	margin-top: 2rem;
+	margin-bottom: 2rem;
+}
+
 .message {
-	margin-bottom: 10px;
+	margin-bottom: 15px;
+	padding: 10px;
+	border-radius: 8px;
+	background: rgba(255, 255, 255, 0.03);
+	border: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .message .user {
 	font-weight: bold;
 	text-align: right;
+	color: #d1b3ff;
+	/* Light purple for usernames */
 }
 
 .message .remove {
@@ -35,17 +60,86 @@ html {
 	width: 22px;
 	height: 20px;
 	left: -60px;
-	/* display: "block", */
 	display: none;
 	padding: 0;
 	line-height: 18px;
-	border: "none";
+	border: none;
 }
 
 .send-message {
 	padding: 0;
 }
 
+/* Input Styling */
+input[type="text"],
+input[type="email"],
+textarea {
+	background: rgba(0, 0, 0, 0.3);
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	color: #ffffff;
+	border-radius: 8px;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+	border-color: #9d4edd;
+	background: rgba(0, 0, 0, 0.5);
+	outline: none;
+}
+
 .my-input-text::placeholder {
-	color: #ccc;
+	color: #aaaaaa;
+}
+
+/* Button Styling */
+.button,
+button,
+input[type="submit"],
+input[type="reset"],
+input[type="button"] {
+	color: #ffffff;
+	border: 1px solid rgba(255, 255, 255, 0.2);
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.button:hover,
+button:hover,
+input[type="submit"]:hover,
+input[type="reset"]:hover,
+input[type="button"]:hover {
+	color: #ffffff;
+	border-color: #9d4edd;
+	background: rgba(157, 78, 221, 0.2);
+	/* Purple tint on hover */
+}
+
+.button.button-primary,
+button.button-primary,
+input[type="submit"].button-primary,
+input[type="reset"].button-primary,
+input[type="button"].button-primary {
+	background-color: #6200ea;
+	border-color: #6200ea;
+}
+
+.button.button-primary:hover,
+button.button-primary:hover {
+	background-color: #7c4dff;
+	border-color: #7c4dff;
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	color: #ffffff;
+}
+
+code {
+	background: rgba(0, 0, 0, 0.3);
+	border: 1px solid rgba(255, 255, 255, 0.1);
+	color: #e0e0e0;
 }
