@@ -34,6 +34,7 @@ function App() {
 							user: message.user,
 							role: message.role,
 							type: message.messageType,
+							timestamp: message.timestamp,
 						},
 					]);
 				} else {
@@ -49,6 +50,7 @@ function App() {
 								user: message.user,
 								role: message.role,
 								type: message.messageType,
+								timestamp: message.timestamp,
 							})
 							.concat(messages.slice(foundIndex + 1));
 					});
@@ -63,6 +65,7 @@ function App() {
 								user: message.user,
 								role: message.role,
 								type: message.messageType,
+								timestamp: message.timestamp,
 							}
 							: m,
 					),
@@ -77,7 +80,10 @@ function App() {
 		<div className="chat container">
 			{messages.map((message) => (
 				<div key={message.id} className="row message">
-					<div className="two columns user">{message.user}</div>
+					<div className="two columns user">
+						{message.user}
+						{message.timestamp && <span style={{ fontSize: "0.8em", color: "#888", marginLeft: "8px" }}>{message.timestamp}</span>}
+					</div>
 					<div className="ten columns">
 						{message.type === "image" ? (
 							<img src={message.content} alt={message.content} />
@@ -120,6 +126,11 @@ function App() {
 						user: name,
 						role: "user",
 						type,
+						timestamp: new Intl.DateTimeFormat("en-GB", {
+							hour: "2-digit",
+							minute: "2-digit",
+							timeZone: "Etc/GMT-1",
+						}).format(new Date()),
 					};
 					setMessages((messages) => [...messages, chatMessage]);
 					// we could broadcast the message here

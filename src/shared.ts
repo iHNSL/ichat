@@ -4,6 +4,7 @@ export type ChatMessage = {
 	type?: "text" | "image";
 	user: string;
 	role: "user" | "assistant";
+	timestamp?: string;
 };
 
 export type Message =
@@ -14,6 +15,7 @@ export type Message =
 		messageType?: "text" | "image";
 		user: string;
 		role: "user" | "assistant";
+		timestamp?: string;
 	}
 	| {
 		type: "update";
@@ -22,6 +24,7 @@ export type Message =
 		messageType?: "text" | "image";
 		user: string;
 		role: "user" | "assistant";
+		timestamp?: string;
 	}
 	| {
 		type: "all";

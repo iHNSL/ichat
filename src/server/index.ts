@@ -22,10 +22,15 @@ export class Chat extends Server<Env> {
 
 		// create the messages table if it doesn't exist
 		this.ctx.storage.sql.exec(
-			`CREATE TABLE IF NOT EXISTS messages (id TEXT PRIMARY KEY, user TEXT, role TEXT, content TEXT, type TEXT)`,
+			`CREATE TABLE IF NOT EXISTS messages (id TEXT PRIMARY KEY, user TEXT, role TEXT, content TEXT, type TEXT, timestamp TEXT)`,
 		);
 		try {
 			this.ctx.storage.sql.exec(`ALTER TABLE messages ADD COLUMN type TEXT`);
+		} catch {
+			// column probably already exists
+		}
+		try {
+			this.ctx.storage.sql.exec(`ALTER TABLE messages ADD COLUMN timestamp TEXT`);
 		} catch {
 			// column probably already exists
 		}
@@ -60,12 +65,12 @@ export class Chat extends Server<Env> {
 		}
 
 		this.ctx.storage.sql.exec(
-			`INSERT INTO messages (id, user, role, content, type) VALUES ('${message.id
+			`INSERT INTO messages (id, user, role, content, type, timestamp) VALUES ('${message.id
 			}', '${message.user}', '${message.role}', ${JSON.stringify(
 				message.content,
-			)}, '${message.type || "text"}') ON CONFLICT (id) DO UPDATE SET content = ${JSON.stringify(
+			)}, '${message.type || "text"}', '${message.timestamp || ""}') ON CONFLICT (id) DO UPDATE SET content = ${JSON.stringify(
 				message.content,
-			)}, type = '${message.type || "text"}'`,
+			)}, type = '${message.type || "text"}', timestamp = '${message.timestamp || ""}'`,
 		);
 	}
 
@@ -82,6 +87,7 @@ export class Chat extends Server<Env> {
 				user: parsed.user,
 				role: parsed.role,
 				type: parsed.messageType,
+				timestamp: parsed.timestamp,
 			});
 		}
 	}
