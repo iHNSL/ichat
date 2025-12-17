@@ -22,7 +22,7 @@ html {
 	/* Animated Dark gradient background */
 	background: linear-gradient(135deg, #000000, #2b1055, #000000);
 	background-size: 400% 400%;
-	animation: breathe 15s ease infinite;
+	animation: breathe 60s ease infinite;
 	color: #ffffff;
 	/* White text for dark mode */
 	font-family: 'Inter', "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
