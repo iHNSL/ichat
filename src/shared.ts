@@ -1,6 +1,7 @@
 export type ChatMessage = {
 	id: string;
 	content: string;
+	type?: "text" | "image";
 	user: string;
 	role: "user" | "assistant";
 };
@@ -10,6 +11,7 @@ export type Message =
 		type: "add";
 		id: string;
 		content: string;
+		messageType?: "text" | "image";
 		user: string;
 		role: "user" | "assistant";
 	}
@@ -17,6 +19,7 @@ export type Message =
 		type: "update";
 		id: string;
 		content: string;
+		messageType?: "text" | "image";
 		user: string;
 		role: "user" | "assistant";
 	}

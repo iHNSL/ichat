@@ -33,6 +33,7 @@ function App() {
 							content: message.content,
 							user: message.user,
 							role: message.role,
+							type: message.messageType,
 						},
 					]);
 				} else {
@@ -47,6 +48,7 @@ function App() {
 								content: message.content,
 								user: message.user,
 								role: message.role,
+								type: message.messageType,
 							})
 							.concat(messages.slice(foundIndex + 1));
 					});
@@ -56,11 +58,12 @@ function App() {
 					messages.map((m) =>
 						m.id === message.id
 							? {
-									id: message.id,
-									content: message.content,
-									user: message.user,
-									role: message.role,
-								}
+								id: message.id,
+								content: message.content,
+								user: message.user,
+								role: message.role,
+								type: message.messageType,
+							}
 							: m,
 					),
 				);
@@ -75,33 +78,63 @@ function App() {
 			{messages.map((message) => (
 				<div key={message.id} className="row message">
 					<div className="two columns user">{message.user}</div>
-					<div className="ten columns">{message.content}</div>
+					<div className="ten columns">
+						{message.type === "image" ? (
+							<img src={message.content} alt={message.content} />
+						) : (
+							message.content
+						)}
+					</div>
 				</div>
 			))}
 			<form
 				className="row"
-				onSubmit={(e) => {
+				onSubmit={async (e) => {
 					e.preventDefault();
-					const content = e.currentTarget.elements.namedItem(
+					const contentInput = e.currentTarget.elements.namedItem(
 						"content",
 					) as HTMLInputElement;
+					let content = contentInput.value;
+					let type: "text" | "image" = "text";
+
+					if (content.startsWith("/gif ")) {
+						const query = content.slice(5);
+						try {
+							const res = await fetch(
+								`https://g.tenor.com/v1/search?q=${query}&key=LIVDSRZULELA&limit=1`,
+							);
+							const data = await res.json();
+							const url = data.results?.[0]?.media?.[0]?.gif?.url;
+							if (url) {
+								content = url;
+								type = "image";
+							}
+						} catch {
+							// ignore error
+						}
+					}
+
 					const chatMessage: ChatMessage = {
 						id: nanoid(8),
-						content: content.value,
+						content,
 						user: name,
 						role: "user",
+						type,
 					};
 					setMessages((messages) => [...messages, chatMessage]);
 					// we could broadcast the message here
 
+					// eslint-disable-next-line @typescript-eslint/no-unused-vars
+					const { type: msgType, ...rest } = chatMessage;
 					socket.send(
 						JSON.stringify({
 							type: "add",
-							...chatMessage,
+							...rest,
+							messageType: msgType,
 						} satisfies Message),
 					);
 
-					content.value = "";
+					contentInput.value = "";
 				}}
 			>
 				<input

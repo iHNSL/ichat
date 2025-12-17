@@ -22,8 +22,13 @@ export class Chat extends Server<Env> {
 
 		// create the messages table if it doesn't exist
 		this.ctx.storage.sql.exec(
-			`CREATE TABLE IF NOT EXISTS messages (id TEXT PRIMARY KEY, user TEXT, role TEXT, content TEXT)`,
+			`CREATE TABLE IF NOT EXISTS messages (id TEXT PRIMARY KEY, user TEXT, role TEXT, content TEXT, type TEXT)`,
 		);
+		try {
+			this.ctx.storage.sql.exec(`ALTER TABLE messages ADD COLUMN type TEXT`);
+		} catch {
+			// column probably already exists
+		}
 
 		// load the messages from the database
 		this.messages = this.ctx.storage.sql
@@ -55,13 +60,12 @@ export class Chat extends Server<Env> {
 		}
 
 		this.ctx.storage.sql.exec(
-			`INSERT INTO messages (id, user, role, content) VALUES ('${
-				message.id
+			`INSERT INTO messages (id, user, role, content, type) VALUES ('${message.id
 			}', '${message.user}', '${message.role}', ${JSON.stringify(
 				message.content,
-			)}) ON CONFLICT (id) DO UPDATE SET content = ${JSON.stringify(
+			)}, '${message.type || "text"}') ON CONFLICT (id) DO UPDATE SET content = ${JSON.stringify(
 				message.content,
-			)}`,
+			)}, type = '${message.type || "text"}'`,
 		);
 	}
 
@@ -72,7 +76,13 @@ export class Chat extends Server<Env> {
 		// let's update our local messages store
 		const parsed = JSON.parse(message as string) as Message;
 		if (parsed.type === "add" || parsed.type === "update") {
-			this.saveMessage(parsed);
+			this.saveMessage({
+				id: parsed.id,
+				content: parsed.content,
+				user: parsed.user,
+				role: parsed.role,
+				type: parsed.messageType,
+			});
 		}
 	}
 }
