@@ -76,95 +76,125 @@ function App() {
 		},
 	});
 
+	const scrollRef = React.useRef<HTMLDivElement>(null);
+	const [autoScroll, setAutoScroll] = useState(true);
+
+	const handleScroll = () => {
+		if (scrollRef.current) {
+			const { scrollTop, scrollHeight, clientHeight } = scrollRef.current;
+			const atBottom = scrollHeight - scrollTop - clientHeight < 50;
+			setAutoScroll(atBottom);
+		}
+	};
+
+	React.useLayoutEffect(() => {
+		if (autoScroll && scrollRef.current) {
+			scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+		}
+	}, [messages, autoScroll]);
+
 	return (
-		<div className="chat container">
-			{messages.map((message) => (
-				<div key={message.id} className="row message">
-					<div className="two columns user" style={{ marginRight: "10px" }}>
-						{message.user}
-					</div>
-					<div className="nine columns" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-						<div style={{ flex: 1, wordBreak: "break-word" }}>
-							{message.type === "image" ? (
-								<img src={message.content} alt={message.content} style={{ maxWidth: "100%" }} />
-							) : (
-								message.content
+		<div className="chat-app" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+			<div 
+				className="message-list" 
+				ref={scrollRef} 
+				onScroll={handleScroll}
+				style={{ flex: 1, overflowY: "auto", padding: "10px", paddingBottom: "20px" }}
+			>
+				{messages.map((message) => (
+					<div key={message.id} className="row message">
+						<div className="two columns user" style={{ marginRight: "10px" }}>
+							{message.user}
+						</div>
+						<div className="nine columns" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+							<div style={{ flex: 1, wordBreak: "break-word" }}>
+								{message.type === "image" ? (
+									<img src={message.content} alt={message.content} style={{ maxWidth: "100%" }} />
+								) : (
+									message.content
+								)}
+							</div>
+							{message.timestamp && (
+								<span style={{ fontSize: "0.7em", color: "#888", marginLeft: "15px", whiteSpace: "nowrap", alignSelf: "flex-start", marginTop: "2px" }}>
+									{message.timestamp}
+								</span>
 							)}
 						</div>
-						{message.timestamp && (
-							<span style={{ fontSize: "0.7em", color: "#888", marginLeft: "15px", whiteSpace: "nowrap", alignSelf: "flex-start", marginTop: "2px" }}>
-								{message.timestamp}
-							</span>
-						)}
 					</div>
-				</div>
-			))}
-			<form
-				className="row"
-				onSubmit={async (e) => {
-					e.preventDefault();
-					const contentInput = e.currentTarget.elements.namedItem(
-						"content",
-					) as HTMLInputElement;
-					let content = contentInput.value;
-					let type: "text" | "image" = "text";
+				))}
+			</div>
+			<div className="input-area" style={{ padding: "20px", background: "rgba(0,0,0,0.2)", borderTop: "1px solid rgba(255,255,255,0.1)" }}>
+				<form
+					className="row"
+					style={{ marginBottom: 0 }}
+					onSubmit={async (e) => {
+						e.preventDefault();
+						const contentInput = e.currentTarget.elements.namedItem(
+							"content",
+						) as HTMLInputElement;
+						let content = contentInput.value;
+						let type: "text" | "image" = "text";
 
-					if (content.startsWith("/gif ")) {
-						const query = content.slice(5);
-						try {
-							const res = await fetch(
-								`https://g.tenor.com/v1/search?q=${query}&key=LIVDSRZULELA&limit=1`,
-							);
-							const data = await res.json();
-							const url = data.results?.[0]?.media?.[0]?.gif?.url;
-							if (url) {
-								content = url;
-								type = "image";
+						if (content.startsWith("/gif ")) {
+							const query = content.slice(5);
+							try {
+								const res = await fetch(
+									`https://g.tenor.com/v1/search?q=${query}&key=LIVDSRZULELA&limit=1`,
+								);
+								const data = await res.json();
+								const url = data.results?.[0]?.media?.[0]?.gif?.url;
+								if (url) {
+									content = url;
+									type = "image";
+								}
+							} catch {
+								// ignore error
 							}
-						} catch {
-							// ignore error
 						}
-					}
 
-					const chatMessage: ChatMessage = {
-						id: nanoid(8),
-						content,
-						user: name,
-						role: "user",
-						type,
-						timestamp: new Intl.DateTimeFormat("en-GB", {
-							hour: "2-digit",
-							minute: "2-digit",
-							timeZone: "Etc/GMT-1",
-						}).format(new Date()),
-					};
-					setMessages((messages) => [...messages, chatMessage]);
-					// we could broadcast the message here
+						const chatMessage: ChatMessage = {
+							id: nanoid(8),
+							content,
+							user: name,
+							role: "user",
+							type,
+							timestamp: new Intl.DateTimeFormat("en-GB", {
+								hour: "2-digit",
+								minute: "2-digit",
+								timeZone: "Etc/GMT-1",
+							}).format(new Date()),
+						};
+						setMessages((messages) => [...messages, chatMessage]);
+						// we could broadcast the message here
 
-					// eslint-disable-next-line @typescript-eslint/no-unused-vars
-					const { type: msgType, ...rest } = chatMessage;
-					socket.send(
-						JSON.stringify({
-							type: "add",
-							...rest,
-							messageType: msgType,
-						} satisfies Message),
-					);
+						// eslint-disable-next-line @typescript-eslint/no-unused-vars
+						const { type: msgType, ...rest } = chatMessage;
+						socket.send(
+							JSON.stringify({
+								type: "add",
+								...rest,
+								messageType: msgType,
+							} satisfies Message),
+						);
 
-					contentInput.value = "";
-				}}
-			>
-				<input
-					type="text"
-					name="content"
-					className="ten columns my-input-text"
-					placeholder={`Hello ${name}! Type a message...`}
-					autoComplete="off"
-				/>
-				<button type="submit" className="send-message two columns">
-					Send
-				</button>
-			</form>
+						contentInput.value = "";
+						// Force scroll to bottom after active user send
+						setAutoScroll(true);
+					}}
+				>
+					<input
+						type="text"
+						name="content"
+						className="ten columns my-input-text"
+						placeholder={`Hello ${name}! Type a message...`}
+						autoComplete="off"
+						style={{ marginBottom: 0 }}
+					/>
+					<button type="submit" className="send-message two columns" style={{ marginBottom: 0 }}>
+						Send
+					</button>
+				</form>
+			</div>
 		</div>
 	);
 }

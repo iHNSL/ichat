@@ -30,18 +30,16 @@ html {
 
 .chat {
 	padding-top: 40px;
-	margin-top: auto;
-	/* Pushes chat to bottom if content is short */
+	/* Removed margin-top: auto as we now use flex column layout */
 }
 
 #root {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	/* Removed justify-content: flex-end to prevent top content clipping */
-	overflow-y: auto;
+	overflow: hidden;
+	/* Disable scrolling on root, delegate to message list */
 	height: 100%;
-	/* padding: 10px; */
 }
 
 /* Container layout */
