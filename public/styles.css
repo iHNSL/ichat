@@ -30,13 +30,15 @@ html {
 
 .chat {
 	padding-top: 40px;
+	margin-top: auto;
+	/* Pushes chat to bottom if content is short */
 }
 
 #root {
 	flex: 1;
 	display: flex;
 	flex-direction: column;
-	justify-content: flex-end;
+	/* Removed justify-content: flex-end to prevent top content clipping */
 	overflow-y: auto;
 	height: 100%;
 	/* padding: 10px; */

@@ -80,15 +80,21 @@ function App() {
 		<div className="chat container">
 			{messages.map((message) => (
 				<div key={message.id} className="row message">
-					<div className="two columns user">
+					<div className="two columns user" style={{ marginRight: "10px" }}>
 						{message.user}
-						{message.timestamp && <span style={{ fontSize: "0.8em", color: "#888", marginLeft: "8px" }}>{message.timestamp}</span>}
 					</div>
-					<div className="ten columns">
-						{message.type === "image" ? (
-							<img src={message.content} alt={message.content} />
-						) : (
-							message.content
+					<div className="nine columns" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+						<div style={{ flex: 1, wordBreak: "break-word" }}>
+							{message.type === "image" ? (
+								<img src={message.content} alt={message.content} style={{ maxWidth: "100%" }} />
+							) : (
+								message.content
+							)}
+						</div>
+						{message.timestamp && (
+							<span style={{ fontSize: "0.7em", color: "#888", marginLeft: "15px", whiteSpace: "nowrap", alignSelf: "flex-start", marginTop: "2px" }}>
+								{message.timestamp}
+							</span>
 						)}
 					</div>
 				</div>
