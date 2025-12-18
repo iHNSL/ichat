@@ -95,9 +95,9 @@ function App() {
 
 	return (
 		<div className="chat-app" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-			<div 
-				className="message-list" 
-				ref={scrollRef} 
+			<div
+				className="message-list"
+				ref={scrollRef}
 				onScroll={handleScroll}
 				style={{ flex: 1, overflowY: "auto", padding: "10px", paddingBottom: "20px" }}
 			>
@@ -133,6 +133,10 @@ function App() {
 							"content",
 						) as HTMLInputElement;
 						let content = contentInput.value;
+						if (!content.trim()) {
+							return;
+						}
+
 						let type: "text" | "image" = "text";
 
 						if (content.startsWith("/gif ")) {

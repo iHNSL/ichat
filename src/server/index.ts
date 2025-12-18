@@ -74,12 +74,49 @@ export class Chat extends Server<Env> {
 		);
 	}
 
+	connectionStates = new Map<
+		string,
+		{ attempts: number[]; lastMessage: string | null; repeatCount: number }
+	>();
+
 	onMessage(connection: Connection, message: WSMessage) {
+		const parsed = JSON.parse(message as string) as Message;
+
+		// Validation 1: Empty message check
+		if (!parsed.content || !parsed.content.trim()) {
+			return;
+		}
+
+		// Initialize connection state if checking user
+		let state = this.connectionStates.get(connection.id);
+		if (!state) {
+			state = { attempts: [], lastMessage: null, repeatCount: 0 };
+			this.connectionStates.set(connection.id, state);
+		}
+
+		// Validation 2: Rate limiting (10 messages per 60 seconds)
+		const now = Date.now();
+		state.attempts = state.attempts.filter((time) => now - time < 60000);
+		if (state.attempts.length >= 10) {
+			return; // Rate limit exceeded. Silently ignore.
+		}
+		state.attempts.push(now);
+
+		// Validation 3: Repeat message protection (max 3 times)
+		if (state.lastMessage === parsed.content) {
+			state.repeatCount++;
+			if (state.repeatCount >= 3) {
+				return; // Too many repeats. Silently ignore.
+			}
+		} else {
+			state.lastMessage = parsed.content;
+			state.repeatCount = 0;
+		}
+
 		// let's broadcast the raw message to everyone else
 		this.broadcast(message);
 
 		// let's update our local messages store
-		const parsed = JSON.parse(message as string) as Message;
 		if (parsed.type === "add" || parsed.type === "update") {
 			this.saveMessage({
 				id: parsed.id,
