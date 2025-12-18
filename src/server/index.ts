@@ -104,13 +104,13 @@ export class Chat extends Server<Env> {
 
 		// Validation 3: Repeat message protection (max 3 times)
 		if (state.lastMessage === parsed.content) {
-			state.repeatCount++;
-			if (state.repeatCount >= 3) {
+			if (state.repeatCount >= 2) {
 				return; // Too many repeats. Silently ignore.
 			}
+			state.repeatCount++;
 		} else {
 			state.lastMessage = parsed.content;
-			state.repeatCount = 0;
+			state.repeatCount = 1;
 		}
 
 		// let's broadcast the raw message to everyone else
