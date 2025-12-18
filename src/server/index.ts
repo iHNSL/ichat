@@ -76,45 +76,79 @@ export class Chat extends Server<Env> {
 
 	connectionStates = new Map<
 		string,
-		{ lastMessageTime: number }
+		{
+			messageTimestamps: number[];
+			lastMessageContent: string;
+			repeatCount: number;
+		}
 	>();
 
 	onMessage(connection: Connection, message: WSMessage) {
 		const parsed = JSON.parse(message as string) as Message;
+		const now = Date.now();
+
+		// We only care about "add" or "update" messages for limits
+		if (parsed.type !== "add" && parsed.type !== "update") {
+			return;
+		}
 
 		// Validation 1: Empty message check
 		if (!parsed.content || !parsed.content.trim()) {
 			return;
 		}
 
-		// Initialize connection state if checking user
+		// Validation 2: Character Limit (250)
+		if (parsed.content.length > 250) {
+			return;
+		}
+
+		// Initialize or get connection state
 		let state = this.connectionStates.get(connection.id);
 		if (!state) {
-			state = { lastMessageTime: 0 };
+			state = {
+				messageTimestamps: [],
+				lastMessageContent: "",
+				repeatCount: 0,
+			};
 			this.connectionStates.set(connection.id, state);
 		}
 
-		// Validation 2: Cooldown (5 seconds)
-		const now = Date.now();
-		if (now - state.lastMessageTime < 5000) {
-			return; // Cooldown active. Silently ignore.
+		// Validation 3: Spam Prevention (No 3 identical messages in a row)
+		if (parsed.content === state.lastMessageContent) {
+			state.repeatCount++;
+			if (state.repeatCount >= 3) {
+				return; // Blocked: 3rd identical message
+			}
+		} else {
+			state.lastMessageContent = parsed.content;
+			state.repeatCount = 1; // Reset to 1 (current message)
 		}
-		state.lastMessageTime = now;
+
+		// Validation 4: Rate Limit (10 messages per minute)
+		// Filter out timestamps older than 60 seconds
+		state.messageTimestamps = state.messageTimestamps.filter(
+			(t) => now - t < 60000,
+		);
+
+		if (state.messageTimestamps.length >= 10) {
+			return; // Rate limit exceeded
+		}
+
+		// Record new message timestamp
+		state.messageTimestamps.push(now);
 
 		// let's broadcast the raw message to everyone else
 		this.broadcast(message);
 
 		// let's update our local messages store
-		if (parsed.type === "add" || parsed.type === "update") {
-			this.saveMessage({
-				id: parsed.id,
-				content: parsed.content,
-				user: parsed.user,
-				role: parsed.role,
-				type: parsed.messageType,
-				timestamp: parsed.timestamp,
-			});
-		}
+		this.saveMessage({
+			id: parsed.id,
+			content: parsed.content,
+			user: parsed.user,
+			role: parsed.role,
+			type: parsed.messageType,
+			timestamp: parsed.timestamp,
+		});
 	}
 }
 

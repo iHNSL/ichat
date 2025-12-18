@@ -18,8 +18,16 @@ function App() {
 	const { room } = useParams();
 
 	const rateLimitRef = React.useRef<{
-		lastMessageTime: number;
-	}>({ lastMessageTime: 0 });
+		messageTimestamps: number[];
+		lastMessageContent: string;
+		repeatCount: number;
+		lastMessageTime: number; // Keeping for backward compat if needed, though mostly replaced
+	}>({
+		messageTimestamps: [],
+		lastMessageContent: "",
+		repeatCount: 0,
+		lastMessageTime: 0,
+	});
 
 	const socket = usePartySocket({
 		party: "chat",
@@ -141,17 +149,43 @@ function App() {
 							return;
 						}
 
-						// Client-side Cooldown Check
+						// Client-side Validation and Limits
 						const now = Date.now();
 						const rateLimit = rateLimitRef.current;
 
-						if (now - rateLimit.lastMessageTime < 5000) {
-							alert("Please wait 5 seconds between messages.");
+						// 1. Character Limit
+						if (content.length > 250) {
+							alert("Message too long. Limit is 250 characters.");
 							return;
 						}
 
-						// Update last message time
-						rateLimit.lastMessageTime = now;
+						// 2. Spam Prevention
+						if (content === rateLimit.lastMessageContent) {
+							if (rateLimit.repeatCount >= 2) { // Already sent twice, this would be 3rd
+								alert("You cannot send the same message 3 times in a row.");
+								return;
+							}
+						}
+
+						// 3. Rate Limit (10 messages per minute)
+						// Filter timestamps older than 60s
+						rateLimit.messageTimestamps = (rateLimit.messageTimestamps || []).filter(
+							(t) => now - t < 60000
+						);
+
+						if (rateLimit.messageTimestamps.length >= 10) {
+							alert("Rate limit exceeded. Max 10 messages per minute.");
+							return;
+						}
+
+						// If all checks pass, update state
+						if (content === rateLimit.lastMessageContent) {
+							rateLimit.repeatCount = (rateLimit.repeatCount || 0) + 1;
+						} else {
+							rateLimit.lastMessageContent = content;
+							rateLimit.repeatCount = 1;
+						}
+						rateLimit.messageTimestamps.push(now);
 
 						let type: "text" | "image" = "text";
 
