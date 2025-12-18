@@ -17,6 +17,10 @@ function App() {
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
 	const { room } = useParams();
 
+	const rateLimitRef = React.useRef<{
+		lastMessageTime: number;
+	}>({ lastMessageTime: 0 });
+
 	const socket = usePartySocket({
 		party: "chat",
 		room,
@@ -136,6 +140,18 @@ function App() {
 						if (!content.trim()) {
 							return;
 						}
+
+						// Client-side Cooldown Check
+						const now = Date.now();
+						const rateLimit = rateLimitRef.current;
+
+						if (now - rateLimit.lastMessageTime < 5000) {
+							alert("Please wait 5 seconds between messages.");
+							return;
+						}
+
+						// Update last message time
+						rateLimit.lastMessageTime = now;
 
 						let type: "text" | "image" = "text";
 

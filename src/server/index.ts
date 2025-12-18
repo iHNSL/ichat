@@ -76,7 +76,7 @@ export class Chat extends Server<Env> {
 
 	connectionStates = new Map<
 		string,
-		{ attempts: number[]; lastMessage: string | null; repeatCount: number }
+		{ lastMessageTime: number }
 	>();
 
 	onMessage(connection: Connection, message: WSMessage) {
@@ -90,28 +90,16 @@ export class Chat extends Server<Env> {
 		// Initialize connection state if checking user
 		let state = this.connectionStates.get(connection.id);
 		if (!state) {
-			state = { attempts: [], lastMessage: null, repeatCount: 0 };
+			state = { lastMessageTime: 0 };
 			this.connectionStates.set(connection.id, state);
 		}
 
-		// Validation 2: Rate limiting (10 messages per 60 seconds)
+		// Validation 2: Cooldown (5 seconds)
 		const now = Date.now();
-		state.attempts = state.attempts.filter((time) => now - time < 60000);
-		if (state.attempts.length >= 10) {
-			return; // Rate limit exceeded. Silently ignore.
+		if (now - state.lastMessageTime < 5000) {
+			return; // Cooldown active. Silently ignore.
 		}
-		state.attempts.push(now);
-
-		// Validation 3: Repeat message protection (max 3 times)
-		if (state.lastMessage === parsed.content) {
-			if (state.repeatCount >= 2) {
-				return; // Too many repeats. Silently ignore.
-			}
-			state.repeatCount++;
-		} else {
-			state.lastMessage = parsed.content;
-			state.repeatCount = 1;
-		}
+		state.lastMessageTime = now;
 
 		// let's broadcast the raw message to everyone else
 		this.broadcast(message);
