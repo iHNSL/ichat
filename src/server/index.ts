@@ -114,8 +114,11 @@ export class Chat extends Server<Env> {
 		}
 
 		// Validation 3: Spam Prevention (No 3 identical messages in a row)
-		// Normalize content by removing all invisible characters (Control \p{C} and Separator \p{Z})
-		const normalizedContent = parsed.content.replace(/[\p{C}\p{Z}]/gu, "");
+		// Normalize content by removing all invisible characters (Control, Separator, Hangul Fillers, Braille Blank, Tags, etc)
+		const normalizedContent = parsed.content.replace(
+			/[\p{C}\p{Z}\u3164\u115F\u1160\uFFA0\u2800\u180B-\u180E\uFE00-\uFE0F\uFEFF\u{E0000}-\u{E007F}]/gu,
+			"",
+		);
 
 		if (normalizedContent === state.lastMessageContent) {
 			state.repeatCount++;
