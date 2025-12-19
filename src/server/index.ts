@@ -114,8 +114,8 @@ export class Chat extends Server<Env> {
 		}
 
 		// Validation 3: Spam Prevention (No 3 identical messages in a row)
-		// Normalize content by removing all spaces to prevent "a" vs "a " bypass
-		const normalizedContent = parsed.content.replace(/\s+/g, "");
+		// Normalize content by removing all invisible characters (Control \p{C} and Separator \p{Z})
+		const normalizedContent = parsed.content.replace(/[\p{C}\p{Z}]/gu, "");
 
 		if (normalizedContent === state.lastMessageContent) {
 			state.repeatCount++;

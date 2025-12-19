@@ -160,7 +160,7 @@ function App() {
 						}
 
 						// 2. Spam Prevention
-						const normalizedContent = content.replace(/\s+/g, "");
+						const normalizedContent = content.replace(/[\p{C}\p{Z}]/gu, "");
 						if (normalizedContent === rateLimit.lastMessageContent) {
 							if (rateLimit.repeatCount >= 2) { // Already sent twice, this would be 3rd
 								alert("You cannot send the same message 3 times in a row.");
