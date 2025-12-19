@@ -114,13 +114,16 @@ export class Chat extends Server<Env> {
 		}
 
 		// Validation 3: Spam Prevention (No 3 identical messages in a row)
-		if (parsed.content === state.lastMessageContent) {
+		// Normalize content by removing all spaces to prevent "a" vs "a " bypass
+		const normalizedContent = parsed.content.replace(/\s+/g, "");
+
+		if (normalizedContent === state.lastMessageContent) {
 			state.repeatCount++;
 			if (state.repeatCount >= 3) {
 				return; // Blocked: 3rd identical message
 			}
 		} else {
-			state.lastMessageContent = parsed.content;
+			state.lastMessageContent = normalizedContent;
 			state.repeatCount = 1; // Reset to 1 (current message)
 		}
 

@@ -160,7 +160,8 @@ function App() {
 						}
 
 						// 2. Spam Prevention
-						if (content === rateLimit.lastMessageContent) {
+						const normalizedContent = content.replace(/\s+/g, "");
+						if (normalizedContent === rateLimit.lastMessageContent) {
 							if (rateLimit.repeatCount >= 2) { // Already sent twice, this would be 3rd
 								alert("You cannot send the same message 3 times in a row.");
 								return;
@@ -179,10 +180,10 @@ function App() {
 						}
 
 						// If all checks pass, update state
-						if (content === rateLimit.lastMessageContent) {
+						if (normalizedContent === rateLimit.lastMessageContent) {
 							rateLimit.repeatCount = (rateLimit.repeatCount || 0) + 1;
 						} else {
-							rateLimit.lastMessageContent = content;
+							rateLimit.lastMessageContent = normalizedContent;
 							rateLimit.repeatCount = 1;
 						}
 						rateLimit.messageTimestamps.push(now);
