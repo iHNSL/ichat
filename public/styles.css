@@ -28,9 +28,21 @@ html {
 	font-family: 'Inter', "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
+/* Orange Theme */
+body.theme-orange {
+	background: linear-gradient(135deg, #000000, #552b00, #000000);
+	background-size: 400% 400%;
+}
+
+/* Cyan Theme */
+body.theme-cyan {
+	background: linear-gradient(135deg, #000000, #003030, #000000);
+	background-size: 400% 400%;
+}
+
 .chat {
 	padding-top: 40px;
-	/* Removed margin-top: auto as we now use flex column layout */
+	/* Removed margin-top */
 }
 
 #root {
@@ -38,7 +50,7 @@ html {
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
-	/* Disable scrolling on root, delegate to message list */
+	/* Disable scrolling*/
 	height: 100%;
 }
 
