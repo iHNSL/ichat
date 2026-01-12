@@ -129,7 +129,11 @@ function App() {
 			user: name,
 			role: "user",
 			type: "image",
-			timestamp: new Date().toISOString(),
+			timestamp: new Intl.DateTimeFormat("en-GB", {
+				hour: "2-digit",
+				minute: "2-digit",
+				timeZone: "Etc/GMT-1",
+			}).format(new Date()),
 		};
 
 		setMessages((messages) => [...messages, chatMessage]);
@@ -169,19 +173,8 @@ function App() {
 								)}
 							</div>
 							{message.timestamp && (
-								<span style={{ fontSize: "0.7em", color: "#888", marginLeft: "15px", whiteSpace: "nowrap", alignSelf: "flex-start", marginTop: "2px" }} title={new Date(message.timestamp).toLocaleString()}>
-									{(() => {
-										try {
-											// Check if it's an ISO string (roughly) to apply local formatting
-											if (message.timestamp.includes('T') && message.timestamp.endsWith('Z')) {
-												return new Date(message.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-											}
-											// Fallback for legacy messages or other formats
-											return message.timestamp;
-										} catch (e) {
-											return message.timestamp;
-										}
-									})()}
+								<span style={{ fontSize: "0.7em", color: "#888", marginLeft: "15px", whiteSpace: "nowrap", alignSelf: "flex-start", marginTop: "2px" }}>
+									{message.timestamp}
 								</span>
 							)}
 						</div>
@@ -269,7 +262,11 @@ function App() {
 							user: name,
 							role: "user",
 							type,
-							timestamp: new Date().toISOString(),
+							timestamp: new Intl.DateTimeFormat("en-GB", {
+								hour: "2-digit",
+								minute: "2-digit",
+								timeZone: "Etc/GMT-1",
+							}).format(new Date()),
 						};
 						setMessages((messages) => [...messages, chatMessage]);
 						// we could broadcast the message here
