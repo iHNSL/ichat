@@ -11,10 +11,13 @@ import {
 import { nanoid } from "nanoid";
 
 import { names, type ChatMessage, type Message } from "../shared";
+import { GifPicker } from "./GifPicker";
+
 
 function App() {
 	const [name] = useState(names[Math.floor(Math.random() * names.length)]);
 	const [messages, setMessages] = useState<ChatMessage[]>([]);
+	const [isGifPickerOpen, setIsGifPickerOpen] = useState(false);
 	const { room } = useParams();
 
 	const rateLimitRef = React.useRef<{
@@ -104,6 +107,49 @@ function App() {
 			scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
 		}
 	}, [messages, autoScroll]);
+
+	const handleGifSelect = (url: string) => {
+		setIsGifPickerOpen(false);
+		const content = url;
+		const now = Date.now();
+		const rateLimit = rateLimitRef.current;
+
+		// Minimal validation for GIFs selected via UI (assuming valid URL)
+		// We can reuse some of existing rate limit logic if we want, or just standard send logic
+		// For simplicity, let's just mirror the success path of existing send logic
+
+		rateLimit.messageTimestamps.push(now); // Count towards rate limit
+		// Reset repeat count for different message type
+		rateLimit.repeatCount = 0;
+		rateLimit.lastMessageContent = "";
+
+		const chatMessage: ChatMessage = {
+			id: nanoid(8),
+			content,
+			user: name,
+			role: "user",
+			type: "image",
+			timestamp: new Intl.DateTimeFormat("en-GB", {
+				hour: "2-digit",
+				minute: "2-digit",
+				timeZone: "Etc/GMT-1",
+			}).format(new Date()),
+		};
+
+		setMessages((messages) => [...messages, chatMessage]);
+
+		// eslint-disable-next-line @typescript-eslint/no-unused-vars
+		const { type: msgType, ...rest } = chatMessage;
+		socket.send(
+			JSON.stringify({
+				type: "add",
+				...rest,
+				messageType: msgType,
+			} satisfies Message),
+		);
+
+		setAutoScroll(true);
+	};
 
 	return (
 		<div className="chat-app" style={{ display: "flex", flexDirection: "column", height: "100%" }}>
@@ -243,16 +289,40 @@ function App() {
 					<input
 						type="text"
 						name="content"
-						className="ten columns my-input-text"
+						className="nine columns my-input-text"
 						placeholder={`Hello ${name}! Type a message...`}
 						autoComplete="off"
 						style={{ marginBottom: 0 }}
 					/>
-					<button type="submit" className="send-message two columns" style={{ marginBottom: 0 }}>
+					<button
+						type="button"
+						className="one column"
+						style={{
+							marginBottom: 0,
+							background: "transparent",
+							border: "1px solid rgba(255,255,255,0.2)",
+							color: "#fff",
+							padding: 0,
+							display: "flex",
+							alignItems: "center",
+							justifyContent: "center",
+							cursor: "pointer"
+						}}
+						onClick={() => setIsGifPickerOpen(true)}
+						title="Choose GIF"
+					>
+						GIF
+					</button>
+					<button type="submit" className="send-message one column" style={{ marginBottom: 0 }}>
 						Send
 					</button>
 				</form>
 			</div>
+			<GifPicker
+				isOpen={isGifPickerOpen}
+				onClose={() => setIsGifPickerOpen(false)}
+				onSelect={handleGifSelect}
+			/>
 		</div>
 	);
 }
