@@ -19,22 +19,22 @@ html {
 	padding: 0;
 	display: flex;
 	flex-direction: column;
-	/* Animated Dark gradient background */
+	/* Animert bakgrunn */
 	background: linear-gradient(135deg, #000000, #2b1055, #000000);
 	background-size: 400% 400%;
 	animation: breathe 60s ease infinite;
 	color: #ffffff;
-	/* White text for dark mode */
+	/* kvit tekst fordi dark mode */
 	font-family: 'Inter', "HelveticaNeue", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
 
-/* Orange Theme */
+/* Orange theme for tools subpage */
 body.theme-orange {
 	background: linear-gradient(135deg, #000000, #552b00, #000000);
 	background-size: 400% 400%;
 }
 
-/* Cyan Theme */
+/* Cyan theme for school subpage, men fjernet det. dette har ingen funksjon akkurat no */
 body.theme-cyan {
 	background: linear-gradient(135deg, #000000, #003030, #000000);
 	background-size: 400% 400%;
@@ -73,7 +73,7 @@ body.theme-cyan {
 	font-weight: bold;
 	text-align: right;
 	color: #d1b3ff;
-	/* Light purple for usernames */
+	/* Light purple for brukernavn */
 }
 
 .message .remove {
