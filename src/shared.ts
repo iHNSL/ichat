@@ -4,7 +4,7 @@ export type ChatMessage = {
 	type?: "text" | "image";
 	user: string;
 	role: "user" | "assistant";
-	timestamp?: string;
+	timestamp?: string | number;
 };
 
 export type Message =
@@ -15,7 +15,7 @@ export type Message =
 		messageType?: "text" | "image";
 		user: string;
 		role: "user" | "assistant";
-		timestamp?: string;
+		timestamp?: string | number;
 	}
 	| {
 		type: "update";
@@ -24,7 +24,7 @@ export type Message =
 		messageType?: "text" | "image";
 		user: string;
 		role: "user" | "assistant";
-		timestamp?: string;
+		timestamp?: string | number;
 	}
 	| {
 		type: "all";
@@ -41,6 +41,16 @@ export const names = [
 	"Genji",
 	"Winton",
 	"Mercy",
+	"Blarwg",
+	"Rammatra",
+	"Erthral",
+	"Alestrum",
+	"Cynric",
+	"Kash'er",
+	"Based DM",
+	"V",
+	"Panam",
+	"Unknown",
 
 
 
